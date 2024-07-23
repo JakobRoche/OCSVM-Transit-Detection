@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 """ModelCondensed
 """
-!pip install scipy
+
+#pip install scipy
 import numpy as np
-!pip install astropy
-from astropy.table import Table
 import pandas as pd
 import glob
 import os
-!pip install astropy.io.fits
-import astropy.io.fits as fits
+#pip install fitsio
+import fitsio
+import gc
 from scipy.signal import savgol_filter
 from sklearn.preprocessing import StandardScaler
 
@@ -23,21 +23,23 @@ print(f"Number of files: {num_files}")
 # Get filenames
 filenames = glob.glob(os.path.join(directory_path, '*.fits'))
 
-# Read the files
-def read_files(path=directory_path):
-  data_list = []
-  for file in os.listdir(path):
-      try:
-          hdulist = fits.open(os.path.join(path, file), ignore_missing_simple=True)
-          data = hdulist[1].data
-          data_list.append(data)
-      except OSError as e:
-          if "Empty or corrupt FITS file" in str(e):
-              print(f"Skipping corrupted file: {file}")
-          else:
-              raise e
-  return data_list
-data_list = read_files(directory_path)
+def read_files(filenames, batch_size=1000):
+    data_list = []
+    for i in range(0, len(filenames), batch_size):
+        batch_files = filenames[i:i + batch_size]
+        for f in batch_files:
+            try:
+                data = fitsio.read(f) # Read the file here
+                data_list.append(data)
+            except OSError as e:
+                if "Empty or corrupt FITS file" in str(e):
+                    print(f"Skipping corrupted file: {f}")
+                else:
+                    raise e
+        gc.collect()
+    return data_list
+
+data_list = read_files(filenames)
 
 # Create dataset dictionary
 data_dict = {}
@@ -121,16 +123,16 @@ test_set_2d = scaler.fit_transform(test_set_2d)
 
 # Train the SVM
 
-from datetime import datetime
+from datetime import datetime, timezone
 from sklearn.svm import OneClassSVM
 
 # Get the current time before the code block.
-t0 = datetime.utcnow()
+t0 = datetime.now(timezone.utc)
 model = OneClassSVM(kernel="rbf", gamma='scale', nu=0.05)
 model.fit(train_set_2d)
 
 # Get the current time after the code block.
-t1 = datetime.utcnow()
+t1 = datetime.now(timezone.utc)
 
 # Calculate the difference between the two times.
 time_delta = t1 - t0
@@ -167,15 +169,15 @@ combined_labels = np.concatenate((no_transit_labels, transit_labels), axis=0)
 
 # Predict on test set
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 # Get the current time before the code block.
-t0 = datetime.utcnow()
+t0 = datetime.now(timezone.utc)
 
 predictions = model.predict(combined_data)
 
 # Get the current time after the code block.
-t1 = datetime.utcnow()
+t1 = datetime.now(timezone.utc)
 
 # Calculate the difference between the two times.
 time_delta = t1 - t0
