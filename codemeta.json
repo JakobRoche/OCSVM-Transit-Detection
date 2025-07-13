@@ -1,0 +1,21 @@
+{
+    "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
+    "@type": "SoftwareSourceCode",
+    "name": "OCSVM-Transit-Detection: One-Class SVM model for exoplanet transit detection",
+    "description": "This One-Class Support Vector Machine (SVM) model detects exoplanet transit events. One-class SVMs fit data and make predictions faster than simple CNNs, and do not require specialized equipment such as Graphics Processing Units (GPU). The code uses a Gaussian kernel to compute a nonlinear decision boundary. After training, OCSVM-Transit-Detection requires that lightcurves classified as containing a transit have features very similar to the lightcurves in the training dataset, thus limiting misclassifications.",
+    "identifier": "ascl:2506.013",
+    "author": [
+        {
+            "@type": "Person",
+            "givenName": "Jakob",
+            "familyName": "Roche",
+            "email": "jakoblaszloroche@usf.edu"
+        }
+    ],
+    "citation": "https://ui.adsabs.harvard.edu/abs/2025ascl.soft06013R",
+    "codeRepository": [
+        "https://github.com/JakobRoche/OCSVM-Transit-Detection"
+    ],
+    "version": "2.0",
+    "license": "https://spdx.org/licenses/MIT.html"
+}
